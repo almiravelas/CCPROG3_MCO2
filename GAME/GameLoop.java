@@ -87,15 +87,15 @@ public class GameLoop{
         Tools.Clear();
         switch (areaChoice) {
             case 1:
-                Areas area1 = new Areas(1, 5);
+                Areas area1 = new Areas(1, 5, "EL1.txt");
                 area1.exploreArea(playerInventory, sc);
                 break;
             case 2:
-                Areas area2 = new Areas(4, 4);
+                Areas area2 = new Areas(3, 3, "EL2.txt");
                 area2.exploreArea(playerInventory, sc);
                 break;
             case 3:
-                Areas area3 = new Areas(5, 5);
+                Areas area3 = new Areas(4, 4, "EL3.txt");
                 area3.exploreArea(playerInventory, sc);
                 break;
             case 4:
