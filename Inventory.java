@@ -1,0 +1,44 @@
+import java.util.ArrayList;
+
+public class Inventory{
+    private ArrayList<Creatures> creatures;
+    private Creatures activeCreature;
+
+    public Inventory(){
+        creatures = new ArrayList<>();
+
+    }
+
+    public void addCreature(Creatures creature){
+        creatures.add(creature);
+    }
+
+    public void changeActiveCreature(Creatures creature){
+        activeCreature = creature;
+    }
+
+    public ArrayList<Creatures> getCreatures(){
+        return creatures;
+    }
+
+    public Creatures getActiveCreature(){
+        return activeCreature;
+    }
+
+    public void listAll(){
+        System.out.println("Inventory: ");
+        
+        int i = 0;
+        for(Creatures creature : creatures){
+            System.out.println();
+            System.out.println("Creature " + (++i) + ":");
+            System.out.println("Name: " + creature.getName());
+            System.out.println("Type: " + creature.getType());
+            System.out.println("Family: " + creature.getFamily());
+            System.out.println("EL: " + creature.getEvolutionLevel());
+            System.out.println(creature);
+        }
+
+        System.out.println();
+    }
+}
