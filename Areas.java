@@ -5,6 +5,8 @@ import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.InputMismatchException;
+
 
 public class Areas {
 
@@ -13,14 +15,17 @@ public class Areas {
     private int playerRow = 0;
     private int playerCol = 0;
     private String direction;
-    private Inventory playerInventory;
-    private boolean outOfBounds;
+    private boolean outOfBounds = false;
     private ArrayList<Creatures> creatures;
     private BattlePhase battle;
+    private Random rand = new Random();
+    private boolean outOfBoundsMessage = false;
+    private boolean first = true;
+
     
-    public Areas(int rows, int cols) {
+    public Areas(int rows, int cols, String creaturesFile) {
         this.area = new String[rows][cols];
-        this.initializeCreatures("EL1.txt");
+        this.creatures = CreatureFactory.initializeCreatures(creaturesFile);
         this.battle = new BattlePhase();
         this.outOfBounds = false;
     }
@@ -31,110 +36,9 @@ public class Areas {
     }
 
 
-    public void initializeCreatures(String creaturesFile) {
-        this.creatures = new ArrayList<>();
-
-        try {
-            FileReader reader = new FileReader(creaturesFile);
-            BufferedReader br = new BufferedReader(reader);
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                String name = parts[0];
-                String type = parts[1];
-                String family = parts[2];
-                String image = parts[3];
-                int evolutionLevel = Integer.parseInt(parts[4]);
-
-                Creatures creature = new Creatures(name, type, family, image, evolutionLevel);
-                this.creatures.add(creature);
-            }
-
-            br.close();
-        } catch (IOException e) {
-            System.out.println("File not found");
-            e.printStackTrace();
-        }
-    }
-
-
     public Creatures generateRandomCreatures() {
-        Random rand = new Random();
         int randomIndex = rand.nextInt(creatures.size());
         return creatures.get(randomIndex);
-    }
-
-  
-    public void exploreArea(Inventory inventory, Scanner sc) {
-        boolean first = true;
-        boolean outOfBoundsMessage = false;
-        while (inArea) {
-            Tools.Clear();
-            int rand;
-
-            if (first)
-                rand = 100;
-            else
-                rand = new Random().nextInt(100);
-
-            if (outOfBounds && !direction.equals("RIGHT") && !direction.equals("LEFT")) {
-            if (!outOfBoundsMessage) {
-                        System.out.println("OUT OF BOUNDS");
-                        outOfBoundsMessage = true;
-            }
-            outOfBounds = false;
-            // Check for creature encounter (40% chance)
-        } else if (rand < 40) {
-                // Start a battle phase with the encountered creature
-                battle.startBattle(generateRandomCreatures(), inventory ,  sc);
-                first = true;
-                outOfBounds = false;
-
-            } else {
-                first = false;
-                showArea();
-                outOfBoundsMessage = false;
-
-                System.out.println("\nMovements");
-                System.out.println("[1] UP [2] DOWN [3] RIGHT [4] LEFT or [5] Exit the Area?");
-                System.out.print("Choice:");
-                int choice = sc.nextInt();
-
-                switch (choice) {
-                    case 1:
-                        setMovePlayer("UP");
-                        move();
-                        break;
-
-                    case 2:
-                        setMovePlayer("DOWN");
-                        move();
-                        break;
-
-                    case 3:
-                        setMovePlayer("RIGHT");
-                        move();
-                        break;
-
-                    case 4:
-                        setMovePlayer("LEFT");
-                        move();
-                        break;
-
-                    case 5:
-                        inArea = false;
-                        break;
-
-                    default:
-                        System.out.println("INVALID");
-                        break;
-                }
-
-            }
-
-           
-        }
     }
 
 
@@ -154,38 +58,112 @@ public class Areas {
 
 
     public void move() {
-        switch (direction) {
-            case "UP":
-                if (playerRow > 0) {
-                    playerRow--;
-                    outOfBounds = false;
-                } else
-                    outOfBounds = true;
-                break;
-            case "DOWN":
-                if (playerRow < area.length - 1) {
-                    playerRow++;
-                    outOfBounds = false;
-                } else
-                    outOfBounds = true;
-                break;
-            case "RIGHT":
-                if (playerCol < area[0].length - 1) {
-                    playerCol++;
-                    outOfBounds = false;
-                } else
-       
-                    outOfBounds = true;
-                break;
-            case "LEFT":
-                if (playerCol > 0) {
-                    playerCol--;
-                    outOfBounds = false;
-                } else
         
-                    outOfBounds = true;
-                break;
+        int newRow = playerRow;
+        int newCol = playerCol;
+
+        switch (direction) {
+            case "UP": newRow--; break;
+            case "DOWN": newRow++; break;
+            case "RIGHT": newCol++; break;
+            case "LEFT": newCol--; break;
+        }
+
+        outOfBounds = newRow < 0 || newRow >= area.length || newCol < 0 || newCol >= area[0].length;
+    
+        if(!outOfBounds){
+            playerRow = newRow;
+            playerCol = newCol;
+        }
+
+    }
+
+    private void handleMovementChoice(Scanner sc){
+        try{
+        System.out.println("\nMovements");
+        System.out.println("[1] UP [2] DOWN [3] RIGHT [4] LEFT or [5] Exit the Area?");
+        System.out.print("Choice:");
+        
+        int choice = sc.nextInt();
+        switch (choice) {
+            case 1: setMovePlayer("UP"); break;
+            case 2: setMovePlayer("DOWN"); break;
+            case 3: setMovePlayer("RIGHT"); break;
+            case 4: setMovePlayer("LEFT"); break;
+            case 5: inArea = false; break;
+            default: System.out.println("INVALID"); break;
+
+        } 
+    }catch (InputMismatchException e) {
+        System.out.println("Invalid input. Please enter a number.");
+        sc.nextLine(); // clear the buffer
+    }
+}
+
+    private void handleCreatureEncounter(Inventory inventory, Scanner sc, boolean first) {
+        battle.startBattle(generateRandomCreatures(), inventory, sc);
+        first = true;
+        outOfBounds = false;
+    }
+
+    private void handleOutOfBounds() {
+        if (!outOfBoundsMessage) {
+            System.out.println("OUT OF BOUNDS");
+            this.outOfBoundsMessage = true;
+        }
+        outOfBounds = false;
+    }
+
+    private void randomEncounter(Inventory inventory, Scanner sc, boolean first) {
+        int randomNum = first ? 100 : rand.nextInt(100);
+        if (randomNum < 40) {
+            handleCreatureEncounter(inventory, sc, first);
         }
     }
+
+    // public void exploreArea(Inventory inventory, Scanner sc) {
+    //     // boolean outOfBoundsMessage = false;
+        
+    //     while (inArea) {
+    //         Tools.Clear();
+
+    //         // int rand = first ? 100 : new Random().nextInt(100);
+    
+    //         if (outOfBounds && !direction.equals("RIGHT") && !direction.equals("LEFT")) {
+    //             handleOutOfBounds();
+    //         // } else if (rand < 40) {
+    //         } else{
+    //             randomEncounter(inventory, sc, first);
+    //             this.first = false;
+    //             showArea();
+    //             outOfBoundsMessage = false;
+    //             handleMovementChoice(sc);
+    //             move();
+    //         }
+    //     }
+    // }
+
+    public void exploreArea(Inventory inventory, Scanner sc) {
+        while (inArea) {
+            Tools.Clear();
+            
+            showArea();
+            handleMovementChoice(sc);
+            move();
+    
+            if (outOfBounds && !direction.equals("RIGHT") && !direction.equals("LEFT")) {
+                handleOutOfBounds();
+            } else if (!outOfBounds) {
+                // Only check for random encounters if the player is not out of bounds
+                randomEncounter(inventory, sc,first);
+                showArea();
+                this.outOfBoundsMessage = false;
+            }
+    
+            this.first = false;
+        }
+    }
+    
+
 
 }
