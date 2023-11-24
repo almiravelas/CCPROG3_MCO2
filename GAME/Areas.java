@@ -121,28 +121,6 @@ public class Areas {
         }
     }
 
-    // public void exploreArea(Inventory inventory, Scanner sc) {
-    //     // boolean outOfBoundsMessage = false;
-        
-    //     while (inArea) {
-    //         Tools.Clear();
-
-    //         // int rand = first ? 100 : new Random().nextInt(100);
-    
-    //         if (outOfBounds && !direction.equals("RIGHT") && !direction.equals("LEFT")) {
-    //             handleOutOfBounds();
-    //         // } else if (rand < 40) {
-    //         } else{
-    //             randomEncounter(inventory, sc, first);
-    //             this.first = false;
-    //             showArea();
-    //             outOfBoundsMessage = false;
-    //             handleMovementChoice(sc);
-    //             move();
-    //         }
-    //     }
-    // }
-
     public void exploreArea(Inventory inventory, Scanner sc) {
         while (inArea) {
             Tools.Clear();
