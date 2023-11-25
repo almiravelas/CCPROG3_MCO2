@@ -4,13 +4,15 @@ public class Creatures {
     private String family;
     private String image;
     private int evolutionLevel;
+    private int health;
 
-    public Creatures(String name, String type, String family, String image, int evolutionLevel){
+    public Creatures(String name, String type, String family, String image, int evolutionLevel, int health){
         this.name = name;
         this.type = type;
         this.family = family;
         this.image = image;
         this.evolutionLevel = evolutionLevel;
+        this.health = health;
     }
 
     public String getName(){
@@ -33,6 +35,10 @@ public class Creatures {
         return evolutionLevel;
     }
 
+    public int getHealth(){
+        return health;
+    }
+
     public void setName(String name){
         this.name = name;
     }
@@ -51,6 +57,10 @@ public class Creatures {
 
     public void setEvolutionLevel(int evolutionLevel){
         this.evolutionLevel = evolutionLevel;
+    }
+
+    public void setHealth(int health){
+        this.health = health;
     }
 
     //add the health also
